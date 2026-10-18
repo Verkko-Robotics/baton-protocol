@@ -267,6 +267,14 @@ delegation depth. They are properties of the task, not of a specialist, because 
 per-specialist limit does nothing about a fan-out of specialists that each stay
 under their own. Exceeding a ceiling fails the task rather than degrading quietly.
 
+<<<<<<< HEAD
+=======
+A token ceiling of **zero means no ceiling**, both for a task (`max_total_tokens`)
+and for a specialist (`max_tokens`). A host that prefers never to cut work off
+mid-task can set zero and rely on the other ceilings (iterations, tool calls,
+spawns, depth), which bound a runaway loop without bounding useful work.
+
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
 ## 6. Execution and durability
 
 A pause for approval can outlast any request or process, so a run's position MUST

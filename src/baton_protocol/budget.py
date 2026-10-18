@@ -12,6 +12,10 @@ tokens is immediately visible to its parent and to its siblings.
 
 from __future__ import annotations
 
+<<<<<<< HEAD
+=======
+import sys
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
 from dataclasses import dataclass, field
 from typing import Any, Mapping
 
@@ -58,7 +62,13 @@ class TaskBudget:
         if count < 0:
             raise ValueError("token count must be non-negative")
         self.tokens_used += count
+<<<<<<< HEAD
         if self.tokens_used > self.max_total_tokens:
+=======
+        # Zero means no token ceiling. Iterations, tool calls and spawns still
+        # bound a task, so "unlimited tokens" cannot become an endless loop.
+        if self.max_total_tokens and self.tokens_used > self.max_total_tokens:
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
             raise BudgetExceeded("token", self.tokens_used, self.max_total_tokens)
 
     def charge_tool_call(self) -> None:
@@ -86,6 +96,11 @@ class TaskBudget:
 
     @property
     def tokens_remaining(self) -> int:
+<<<<<<< HEAD
+=======
+        if not self.max_total_tokens:
+            return sys.maxsize  # no ceiling
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
         return max(0, self.max_total_tokens - self.tokens_used)
 
     @property
@@ -98,6 +113,11 @@ class TaskBudget:
         Lets a caller skip an expensive model call it cannot afford instead of
         making it and then failing.
         """
+<<<<<<< HEAD
+=======
+        if not self.max_total_tokens:
+            return False
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
         return self.tokens_used + count > self.max_total_tokens
 
     # ── Serialization ───────────────────────────────────────────────────────

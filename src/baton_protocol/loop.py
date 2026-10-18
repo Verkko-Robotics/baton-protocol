@@ -619,7 +619,11 @@ class AgenticLoop:
             metadata={"task_id": run.task_id, "subtask_id": run.subtask_id},
         )
 
+<<<<<<< HEAD
         if run.tokens_used > self.config.max_tokens:
+=======
+        if self.config.max_tokens and run.tokens_used > self.config.max_tokens:
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
             raise BudgetExceeded(
                 "specialist token", run.tokens_used, self.config.max_tokens
             )

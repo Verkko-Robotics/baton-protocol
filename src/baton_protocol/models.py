@@ -411,6 +411,10 @@ class SpecialistConfig:
     max_iterations: int = 5
     timeout_seconds: float = 120.0
     #: Per-run token ceiling, checked alongside the shared task budget.
+<<<<<<< HEAD
+=======
+    #: Zero means no per-run ceiling.
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
     max_tokens: int = 50_000
     #: Max output tokens for ONE turn. Zero defers to the gateway's default.
     #: A specialist whose job is to write the deliverable needs a far larger

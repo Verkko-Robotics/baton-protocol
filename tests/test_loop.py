@@ -482,6 +482,21 @@ def test_per_specialist_token_ceiling_is_enforced() -> None:
     assert outcome.result.status is SpecialistStatus.FAILED
 
 
+<<<<<<< HEAD
+=======
+def test_zero_means_no_token_ceiling_for_the_specialist_or_the_task() -> None:
+    config = make_config(max_tokens=0)
+    budget = TaskBudget(max_total_tokens=0)
+    loop, _ = build_loop(
+        [text_response("hi", tokens=10_000_000)], config=config, budget=budget
+    )
+
+    outcome = loop.start("system prompt")
+
+    assert outcome.result.status is SpecialistStatus.COMPLETED
+
+
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
 def test_tool_call_budget_is_enforced() -> None:
     budget = TaskBudget(max_tool_calls=1)
     loop, _ = build_loop(

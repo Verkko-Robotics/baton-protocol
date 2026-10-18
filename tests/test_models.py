@@ -189,3 +189,27 @@ class TestTaskBudget:
     def test_round_trips(self) -> None:
         budget = TaskBudget(max_total_tokens=999, tokens_used=42)
         assert TaskBudget.from_dict(budget.to_dict()).tokens_used == 42
+<<<<<<< HEAD
+=======
+
+
+class TestUnlimitedTokens:
+    """Zero means no token ceiling; other ceilings still apply."""
+
+    def test_a_zero_task_ceiling_never_trips(self):
+        budget = TaskBudget(max_total_tokens=0)
+        budget.charge_tokens(10_000_000)
+        assert not budget.would_exceed_tokens(10**9)
+        assert budget.tokens_used == 10_000_000
+
+    def test_a_positive_ceiling_still_trips(self):
+        budget = TaskBudget(max_total_tokens=10)
+        with pytest.raises(BudgetExceeded):
+            budget.charge_tokens(11)
+
+    def test_unlimited_tokens_leave_tool_calls_bounded(self):
+        budget = TaskBudget(max_total_tokens=0, max_tool_calls=1)
+        budget.charge_tool_call()
+        with pytest.raises(BudgetExceeded):
+            budget.charge_tool_call()
+>>>>>>> 4d653be (BATON 1.0: specification, reference library, JSON Schemas and conformance suite)
