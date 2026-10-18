@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/slice.schema.json",
+  "title": "ContextSlice",
+  "description": "The bounded view of task context handed to one specialist. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "principal_id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "intent": {
+      "type": "string"
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "data": {
+      "type": "object"
+    },
+    "depth": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ancestry": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "task_id",
+    "tenant_id",
+    "principal_id",
+    "capability"
+  ]
+}

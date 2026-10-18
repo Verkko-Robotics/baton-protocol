@@ -1,0 +1,173 @@
+{
+  "suite": "delegation",
+  "operation": "delegation",
+  "spec": "SPEC.md#5.2",
+  "vectors": [
+    {
+      "id": "deleg-denied-outside-grant",
+      "description": "A capability may delegate only to capabilities it declares.",
+      "registry": {
+        "a": {
+          "can_delegate_to": [
+            "b"
+          ]
+        },
+        "b": {},
+        "c": {}
+      },
+      "request": {
+        "requesting_capability": "a",
+        "required_capability": "c",
+        "depth": 1,
+        "ancestry": [
+          "a"
+        ]
+      },
+      "budget": {},
+      "expect_error": "DelegationDenied",
+      "expect_spawns_used": 0
+    },
+    {
+      "id": "deleg-denied-without-any-grant",
+      "description": "A capability that declares no delegation grant may not delegate.",
+      "registry": {
+        "a": {},
+        "b": {}
+      },
+      "request": {
+        "requesting_capability": "a",
+        "required_capability": "b",
+        "depth": 1,
+        "ancestry": [
+          "a"
+        ]
+      },
+      "budget": {},
+      "expect_error": "DelegationDenied",
+      "expect_spawns_used": 0
+    },
+    {
+      "id": "deleg-denied-unregistered-requester",
+      "description": "An unknown requester has no grant.",
+      "registry": {
+        "a": {
+          "can_delegate_to": [
+            "b"
+          ]
+        },
+        "b": {},
+        "c": {}
+      },
+      "request": {
+        "requesting_capability": "ghost",
+        "required_capability": "b",
+        "depth": 1,
+        "ancestry": [
+          "ghost"
+        ]
+      },
+      "budget": {},
+      "expect_error": "DelegationDenied",
+      "expect_spawns_used": 0
+    },
+    {
+      "id": "deleg-cycle-refused",
+      "description": "Delegating to a capability already in the ancestry is refused.",
+      "registry": {
+        "a": {
+          "can_delegate_to": [
+            "b"
+          ]
+        },
+        "b": {},
+        "c": {}
+      },
+      "request": {
+        "requesting_capability": "a",
+        "required_capability": "b",
+        "depth": 2,
+        "ancestry": [
+          "b",
+          "a"
+        ]
+      },
+      "budget": {},
+      "expect_error": "DelegationCycle",
+      "expect_spawns_used": 0
+    },
+    {
+      "id": "deleg-depth-limit-refused-without-spend",
+      "description": "Exceeding the depth limit is refused and consumes nothing.",
+      "registry": {
+        "a": {
+          "can_delegate_to": [
+            "b"
+          ]
+        },
+        "b": {},
+        "c": {}
+      },
+      "request": {
+        "requesting_capability": "a",
+        "required_capability": "b",
+        "depth": 4,
+        "ancestry": [
+          "a"
+        ]
+      },
+      "budget": {
+        "max_spawn_depth": 3
+      },
+      "expect_error": "DelegationDepthExceeded",
+      "expect_spawns_used": 0
+    },
+    {
+      "id": "deleg-spawn-limit-refused-without-spend",
+      "description": "Exceeding the spawn limit is refused and consumes nothing.",
+      "registry": {
+        "a": {
+          "can_delegate_to": [
+            "b"
+          ]
+        },
+        "b": {},
+        "c": {}
+      },
+      "request": {
+        "requesting_capability": "a",
+        "required_capability": "b",
+        "depth": 1,
+        "ancestry": [
+          "a"
+        ]
+      },
+      "budget": {
+        "max_total_spawns": 0
+      },
+      "expect_error": "BudgetExceeded",
+      "expect_spawns_used": 0
+    },
+    {
+      "id": "deleg-unregistered-target-consumes-nothing",
+      "description": "A refused delegation must not consume resources, including one whose target is not registered.",
+      "registry": {
+        "a": {
+          "can_delegate_to": [
+            "z"
+          ]
+        }
+      },
+      "request": {
+        "requesting_capability": "a",
+        "required_capability": "z",
+        "depth": 1,
+        "ancestry": [
+          "a"
+        ]
+      },
+      "budget": {},
+      "expect_error": "CapabilityNotRegistered",
+      "expect_spawns_used": 0
+    }
+  ]
+}

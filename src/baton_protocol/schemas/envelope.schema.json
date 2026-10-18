@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/envelope.schema.json",
+  "title": "ContextEnvelope",
+  "description": "The persistent, versioned record of one task. The unit implementations exchange and store. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "envelope_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "principal_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "intent": {
+      "type": "string"
+    },
+    "context_data": {
+      "type": "object"
+    },
+    "subtasks": {
+      "type": "array",
+      "items": {
+        "$ref": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/subtask.schema.json"
+      }
+    },
+    "gap_flags": {
+      "type": "array",
+      "items": {
+        "$ref": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/gap-flag.schema.json"
+      }
+    },
+    "agent_chain": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blackboard_snapshot": {
+      "type": "array",
+      "items": {
+        "$ref": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/blackboard-entry.schema.json"
+      }
+    },
+    "budget": {
+      "$ref": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/budget.schema.json"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "extensions": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "task_id",
+    "tenant_id",
+    "principal_id"
+  ]
+}

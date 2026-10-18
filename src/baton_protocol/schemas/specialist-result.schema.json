@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/specialist-result.schema.json",
+  "title": "SpecialistResult",
+  "description": "The outcome of one specialist run. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "specialist_id": {
+      "type": "string"
+    },
+    "subtask_id": {
+      "type": "string"
+    },
+    "capability": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "idle",
+        "running",
+        "awaiting_approval",
+        "awaiting_delegate",
+        "completed",
+        "failed",
+        "truncated"
+      ]
+    },
+    "output": true,
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "tokens_used": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "error": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "specialist_id",
+    "subtask_id",
+    "capability",
+    "status"
+  ]
+}

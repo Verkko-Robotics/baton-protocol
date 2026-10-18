@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/specialist-run.schema.json",
+  "title": "SpecialistRun",
+  "description": "Serializable state of an in-flight specialist run, so it can be suspended and resumed. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "specialist_id": {
+      "type": "string"
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subtask_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "iteration": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tokens_used": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "status": {
+      "enum": [
+        "idle",
+        "running",
+        "awaiting_approval",
+        "awaiting_delegate",
+        "completed",
+        "failed",
+        "truncated"
+      ]
+    },
+    "pending_approval": {
+      "oneOf": [
+        {
+          "$ref": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/pending-approval.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "depth": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ancestry": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "schema_retries": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "specialist_id",
+    "capability",
+    "subtask_id",
+    "task_id"
+  ]
+}

@@ -1,0 +1,344 @@
+{
+  "suite": "blackboard",
+  "operation": "blackboard",
+  "spec": "SPEC.md#4.3",
+  "vectors": [
+    {
+      "id": "bb-latest-wins-history-kept",
+      "description": "A later post supersedes an earlier one for readers, but the earlier value stays in history.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 1
+        },
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 2
+        },
+        {
+          "op": "read",
+          "requester": "a",
+          "capability": "a",
+          "key": "k",
+          "expect": 2
+        },
+        {
+          "op": "history_count",
+          "requester": "a",
+          "capability": "a",
+          "key": "k",
+          "expect": 2
+        }
+      ]
+    },
+    {
+      "id": "bb-default-visible-to-all",
+      "description": "With no visibility given, every capability can read the fact.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 1
+        },
+        {
+          "op": "read",
+          "requester": "b",
+          "capability": "a",
+          "key": "k",
+          "expect": 1
+        },
+        {
+          "op": "read",
+          "requester": "c",
+          "capability": "a",
+          "key": "k",
+          "expect": 1
+        }
+      ]
+    },
+    {
+      "id": "bb-empty-visibility-means-nobody",
+      "description": "An empty visible_to hides the fact from everyone but its author (fail closed).",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": "secret",
+          "visible_to": []
+        },
+        {
+          "op": "read",
+          "requester": "b",
+          "capability": "a",
+          "key": "k",
+          "expect": null
+        },
+        {
+          "op": "read",
+          "requester": "a",
+          "capability": "a",
+          "key": "k",
+          "expect": "secret"
+        }
+      ]
+    },
+    {
+      "id": "bb-explicit-grant",
+      "description": "visible_to grants read access to exactly the named capabilities.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": "v",
+          "visible_to": [
+            "b"
+          ]
+        },
+        {
+          "op": "read",
+          "requester": "b",
+          "capability": "a",
+          "key": "k",
+          "expect": "v"
+        },
+        {
+          "op": "read",
+          "requester": "c",
+          "capability": "a",
+          "key": "k",
+          "expect": null
+        }
+      ]
+    },
+    {
+      "id": "bb-unreadable-looks-absent",
+      "description": "An unreadable fact is indistinguishable from one that was never posted.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "private",
+          "value": "x",
+          "visible_to": []
+        },
+        {
+          "op": "read",
+          "requester": "b",
+          "capability": "a",
+          "key": "private",
+          "expect": null
+        },
+        {
+          "op": "read",
+          "requester": "b",
+          "capability": "a",
+          "key": "never_posted",
+          "expect": null
+        }
+      ]
+    },
+    {
+      "id": "bb-read-all-respects-visibility",
+      "description": "read_all returns the latest readable value per address, for the requester only.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "x",
+          "value": 1
+        },
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "y",
+          "value": 2,
+          "visible_to": [
+            "b"
+          ]
+        },
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "z",
+          "value": 3,
+          "visible_to": []
+        },
+        {
+          "op": "read_all",
+          "requester": "c",
+          "expect": {
+            "a.x": 1
+          }
+        },
+        {
+          "op": "read_all",
+          "requester": "b",
+          "expect": {
+            "a.x": 1,
+            "a.y": 2
+          }
+        },
+        {
+          "op": "read_all",
+          "requester": "a",
+          "expect": {
+            "a.x": 1,
+            "a.y": 2,
+            "a.z": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "bb-history-excludes-unreadable",
+      "description": "History shows a requester only the entries it may read.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 1
+        },
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 2,
+          "visible_to": [
+            "b"
+          ]
+        },
+        {
+          "op": "history_count",
+          "requester": "c",
+          "capability": "a",
+          "key": "k",
+          "expect": 1
+        },
+        {
+          "op": "history_count",
+          "requester": "b",
+          "capability": "a",
+          "key": "k",
+          "expect": 2
+        }
+      ]
+    },
+    {
+      "id": "bb-sequence-strictly-increasing",
+      "description": "Every post gets a strictly increasing sequence number.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 1
+        },
+        {
+          "op": "post",
+          "capability": "b",
+          "key": "k",
+          "value": 2
+        },
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 3
+        },
+        {
+          "op": "seq_strictly_increasing"
+        }
+      ]
+    },
+    {
+      "id": "bb-cross-tenant-post-rejected",
+      "description": "Posting under a different tenant raises rather than being filtered.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post_raises",
+          "capability": "a",
+          "key": "k",
+          "value": 1,
+          "tenant_id": "other",
+          "error": "TenantMismatch"
+        }
+      ]
+    },
+    {
+      "id": "bb-empty-key-rejected",
+      "description": "A blackboard key must be non-empty.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post_raises",
+          "capability": "a",
+          "key": "",
+          "value": 1,
+          "error": "ValueError"
+        }
+      ]
+    },
+    {
+      "id": "bb-superseding-post-hidden-from-reader-leaves-older-value",
+      "description": "If a newer post is not readable by a requester, the newest post it CAN read is returned.",
+      "task_id": "t1",
+      "tenant_id": "acme",
+      "steps": [
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 1
+        },
+        {
+          "op": "post",
+          "capability": "a",
+          "key": "k",
+          "value": 2,
+          "visible_to": []
+        },
+        {
+          "op": "read",
+          "requester": "b",
+          "capability": "a",
+          "key": "k",
+          "expect": 1
+        },
+        {
+          "op": "read",
+          "requester": "a",
+          "capability": "a",
+          "key": "k",
+          "expect": 2
+        }
+      ]
+    }
+  ]
+}

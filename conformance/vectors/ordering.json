@@ -1,0 +1,151 @@
+{
+  "suite": "ordering",
+  "operation": "ordering",
+  "spec": "SPEC.md#4.4",
+  "vectors": [
+    {
+      "id": "order-chain-reorders",
+      "description": "Dependencies always precede dependents, regardless of authored order.",
+      "subtasks": [
+        {
+          "id": "c",
+          "required_capability": "c",
+          "depends_on": [
+            "b"
+          ]
+        },
+        {
+          "id": "b",
+          "required_capability": "b",
+          "depends_on": [
+            "a"
+          ]
+        },
+        {
+          "id": "a",
+          "required_capability": "a",
+          "depends_on": []
+        }
+      ],
+      "expect_order": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    {
+      "id": "order-independent-keep-authored-order",
+      "description": "Independent subtasks keep their authored order, so runs are reproducible.",
+      "subtasks": [
+        {
+          "id": "x",
+          "required_capability": "x",
+          "depends_on": []
+        },
+        {
+          "id": "y",
+          "required_capability": "y",
+          "depends_on": []
+        },
+        {
+          "id": "z",
+          "required_capability": "z",
+          "depends_on": []
+        }
+      ],
+      "expect_order": [
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    {
+      "id": "order-diamond",
+      "description": "A diamond resolves in dependency layers.",
+      "subtasks": [
+        {
+          "id": "a",
+          "required_capability": "a",
+          "depends_on": []
+        },
+        {
+          "id": "b",
+          "required_capability": "b",
+          "depends_on": [
+            "a"
+          ]
+        },
+        {
+          "id": "c",
+          "required_capability": "c",
+          "depends_on": [
+            "a"
+          ]
+        },
+        {
+          "id": "d",
+          "required_capability": "d",
+          "depends_on": [
+            "b",
+            "c"
+          ]
+        }
+      ],
+      "expect_order": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    {
+      "id": "order-cycle-is-an-error",
+      "description": "A cycle is an authoring error and must be raised, never silently dropped.",
+      "subtasks": [
+        {
+          "id": "a",
+          "required_capability": "a",
+          "depends_on": [
+            "b"
+          ]
+        },
+        {
+          "id": "b",
+          "required_capability": "b",
+          "depends_on": [
+            "a"
+          ]
+        }
+      ],
+      "expect_error": "UnresolvableDependencies"
+    },
+    {
+      "id": "order-self-dependency-is-a-cycle",
+      "description": "A subtask depending on itself is a cycle.",
+      "subtasks": [
+        {
+          "id": "a",
+          "required_capability": "a",
+          "depends_on": [
+            "a"
+          ]
+        }
+      ],
+      "expect_error": "UnresolvableDependencies"
+    },
+    {
+      "id": "order-unknown-dependency-is-an-error",
+      "description": "Depending on an unknown subtask is an authoring error.",
+      "subtasks": [
+        {
+          "id": "a",
+          "required_capability": "a",
+          "depends_on": [
+            "ghost"
+          ]
+        }
+      ],
+      "expect_error": "UnresolvableDependencies"
+    }
+  ]
+}

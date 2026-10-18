@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/gap-flag.schema.json",
+  "title": "GapFlag",
+  "description": "A recorded hole in the task's information or authority. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "missing_input",
+        "missing_capability",
+        "missing_authorization",
+        "ambiguous_intent",
+        "external_dependency"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "blocking": {
+      "type": "boolean"
+    },
+    "resolved": {
+      "type": "boolean"
+    },
+    "subtask_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "kind"
+  ]
+}

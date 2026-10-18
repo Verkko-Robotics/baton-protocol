@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/subtask.schema.json",
+  "title": "Subtask",
+  "description": "One unit of work assigned to exactly one capability. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "required_capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expected_output_schema": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "idempotency_key": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "pending",
+        "running",
+        "blocked",
+        "completed",
+        "failed",
+        "skipped"
+      ]
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "consumes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Blackboard addresses (`capability.key`) this subtask needs. If any is absent or unreadable by the subtask's capability, the subtask MUST NOT run."
+    }
+  },
+  "required": [
+    "required_capability"
+  ]
+}

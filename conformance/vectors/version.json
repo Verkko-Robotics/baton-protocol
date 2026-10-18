@@ -1,0 +1,62 @@
+{
+  "suite": "version",
+  "operation": "version",
+  "spec": "SPEC.md#7",
+  "vectors": [
+    {
+      "id": "v-current",
+      "version": "1.0.0",
+      "compatible": true
+    },
+    {
+      "id": "v-newer-minor",
+      "version": "1.7.3",
+      "compatible": true
+    },
+    {
+      "id": "v-newer-minor-large",
+      "version": "1.99.0",
+      "compatible": true
+    },
+    {
+      "id": "v-newer-major",
+      "version": "2.0.0",
+      "compatible": false
+    },
+    {
+      "id": "v-older-major",
+      "version": "0.9.0",
+      "compatible": false
+    },
+    {
+      "id": "v-malformed-short",
+      "version": "1",
+      "error": "ValueError"
+    },
+    {
+      "id": "v-malformed-two-part",
+      "version": "1.0",
+      "error": "ValueError"
+    },
+    {
+      "id": "v-malformed-letters",
+      "version": "a.b.c",
+      "error": "ValueError"
+    },
+    {
+      "id": "v-malformed-empty",
+      "version": "",
+      "error": "ValueError"
+    },
+    {
+      "id": "v-envelope-newer-minor-is-read",
+      "envelope_version": "1.9.0",
+      "reads": true
+    },
+    {
+      "id": "v-envelope-newer-major-is-refused",
+      "envelope_version": "2.0.0",
+      "reads": false
+    }
+  ]
+}

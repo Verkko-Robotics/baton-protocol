@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/delegation-request.schema.json",
+  "title": "DelegationRequest",
+  "description": "One specialist's request that another capability do some work. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "requesting_specialist_id": {
+      "type": "string"
+    },
+    "requesting_capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "required_capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_data": {
+      "type": "object"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "depth": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ancestry": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expected_output_schema": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "requesting_capability",
+    "required_capability"
+  ]
+}

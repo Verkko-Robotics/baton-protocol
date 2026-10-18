@@ -1,0 +1,680 @@
+{
+  "suite": "flow",
+  "operation": "flow",
+  "spec": "SPEC.md#5",
+  "vectors": [
+    {
+      "id": "flow-side-effect-suspends-before-executing",
+      "description": "A side-effecting tool call pauses for approval and does not run.",
+      "registry": {
+        "sender": {
+          "tools": [
+            "send_email"
+          ]
+        }
+      },
+      "tool_specs": [
+        {
+          "name": "send_email",
+          "side_effect": true
+        }
+      ],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "sender",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "tool_calls": [
+            [
+              "send_email",
+              {
+                "to": "a@b.c"
+              }
+            ]
+          ]
+        }
+      ],
+      "expect_first": {
+        "suspended": true
+      },
+      "expect": {
+        "suspended": true,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "blocked"
+        }
+      }
+    },
+    {
+      "id": "flow-read-only-tool-runs-without-approval",
+      "description": "A tool not marked side-effecting runs without approval.",
+      "registry": {
+        "researcher": {
+          "tools": [
+            "web_search"
+          ]
+        }
+      },
+      "tool_specs": [
+        {
+          "name": "web_search",
+          "side_effect": false
+        }
+      ],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "researcher",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "tool_calls": [
+            [
+              "web_search",
+              {
+                "q": "x"
+              }
+            ]
+          ]
+        },
+        {
+          "text": "done"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [
+          "web_search"
+        ],
+        "subtask_status": {
+          "s1": "completed"
+        }
+      }
+    },
+    {
+      "id": "flow-undeclared-tool-is-refused",
+      "description": "A tool the gateway offers but the capability did not declare cannot be used.",
+      "registry": {
+        "sender": {
+          "tools": []
+        }
+      },
+      "tool_specs": [
+        {
+          "name": "send_email",
+          "side_effect": false
+        }
+      ],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "sender",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "tool_calls": [
+            [
+              "send_email",
+              {
+                "to": "a@b.c"
+              }
+            ]
+          ]
+        },
+        {
+          "text": "ok"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "completed"
+        }
+      }
+    },
+    {
+      "id": "flow-approval-then-resume-executes",
+      "description": "After approval the parked call executes and the run completes; state survives serialization.",
+      "registry": {
+        "sender": {
+          "tools": [
+            "send_email"
+          ]
+        }
+      },
+      "tool_specs": [
+        {
+          "name": "send_email",
+          "side_effect": true
+        }
+      ],
+      "tool_results": {
+        "send_email": "message-1"
+      },
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "sender",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "tool_calls": [
+            [
+              "send_email",
+              {
+                "to": "a@b.c"
+              }
+            ]
+          ]
+        },
+        {
+          "text": "sent"
+        }
+      ],
+      "after_run": {
+        "serialize": true,
+        "resume": {
+          "subtask_id": "s1",
+          "approved": true
+        }
+      },
+      "expect_first": {
+        "suspended": true
+      },
+      "expect": {
+        "suspended": false,
+        "invocations": [
+          "send_email"
+        ],
+        "subtask_status": {
+          "s1": "completed"
+        }
+      }
+    },
+    {
+      "id": "flow-denial-is-not-a-failure",
+      "description": "A denied action is fed back to the specialist; it can finish without it.",
+      "registry": {
+        "sender": {
+          "tools": [
+            "send_email"
+          ]
+        }
+      },
+      "tool_specs": [
+        {
+          "name": "send_email",
+          "side_effect": true
+        }
+      ],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "sender",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "tool_calls": [
+            [
+              "send_email",
+              {
+                "to": "a@b.c"
+              }
+            ]
+          ]
+        },
+        {
+          "text": "finished without sending"
+        }
+      ],
+      "after_run": {
+        "serialize": true,
+        "resume": {
+          "subtask_id": "s1",
+          "approved": false,
+          "denial_reason": "not today"
+        }
+      },
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "completed"
+        }
+      }
+    },
+    {
+      "id": "flow-dependents-of-suspended-subtask-are-skipped",
+      "description": "Work downstream of a paused subtask does not run.",
+      "registry": {
+        "sender": {
+          "tools": [
+            "send_email"
+          ]
+        },
+        "writer": {
+          "tools": []
+        }
+      },
+      "tool_specs": [
+        {
+          "name": "send_email",
+          "side_effect": true
+        }
+      ],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "sender",
+          "depends_on": []
+        },
+        {
+          "id": "s2",
+          "required_capability": "writer",
+          "depends_on": [
+            "s1"
+          ]
+        }
+      ],
+      "llm": [
+        {
+          "tool_calls": [
+            [
+              "send_email",
+              {
+                "to": "a@b.c"
+              }
+            ]
+          ]
+        }
+      ],
+      "expect": {
+        "suspended": true,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "blocked",
+          "s2": "skipped"
+        }
+      }
+    },
+    {
+      "id": "flow-failed-prerequisite-skips-dependents",
+      "description": "A failed prerequisite stops its branch and records a gap, instead of running on missing input.",
+      "registry": {
+        "a": {
+          "tools": []
+        },
+        "b": {
+          "tools": []
+        }
+      },
+      "tool_specs": [],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "a",
+          "depends_on": []
+        },
+        {
+          "id": "s2",
+          "required_capability": "b",
+          "depends_on": [
+            "s1"
+          ]
+        }
+      ],
+      "llm": [
+        {
+          "error": "model unavailable"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "failed",
+          "s2": "skipped"
+        },
+        "gap_kinds": [
+          "external_dependency"
+        ]
+      }
+    },
+    {
+      "id": "flow-output-is-published-with-declared-readers",
+      "description": "A result is posted as <capability>.output, readable only by the capabilities its producer named.",
+      "registry": {
+        "producer": {
+          "tools": [],
+          "output_visible_to": [
+            "consumer"
+          ]
+        }
+      },
+      "tool_specs": [],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "producer",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "text": "fact-1"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "completed"
+        },
+        "blackboard": [
+          {
+            "requester": "consumer",
+            "capability": "producer",
+            "key": "output",
+            "value": "fact-1"
+          },
+          {
+            "requester": "outsider",
+            "capability": "producer",
+            "key": "output",
+            "value": null
+          },
+          {
+            "requester": "producer",
+            "capability": "producer",
+            "key": "output",
+            "value": "fact-1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "flow-every-model-call-is-metered",
+      "description": "Every model call is metered against the principal with a unique idempotency key.",
+      "registry": {
+        "researcher": {
+          "tools": [
+            "web_search"
+          ]
+        }
+      },
+      "tool_specs": [
+        {
+          "name": "web_search",
+          "side_effect": false
+        }
+      ],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "researcher",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "tool_calls": [
+            [
+              "web_search",
+              {
+                "q": "x"
+              }
+            ]
+          ]
+        },
+        {
+          "text": "done"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [
+          "web_search"
+        ],
+        "subtask_status": {
+          "s1": "completed"
+        },
+        "metering": {
+          "calls": 2,
+          "principal": "u1"
+        }
+      }
+    },
+    {
+      "id": "flow-invalid-output-is-corrected-before-publication",
+      "description": "Output that violates its schema is sent back for correction; only the valid output reaches the blackboard.",
+      "validate_output": true,
+      "registry": {
+        "producer": {
+          "tools": [],
+          "output_schema": {
+            "type": "string",
+            "pattern": "^OK"
+          }
+        }
+      },
+      "tool_specs": [],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "producer",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "text": "bad"
+        },
+        {
+          "text": "OK done"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "completed"
+        },
+        "blackboard": [
+          {
+            "requester": "anyone",
+            "capability": "producer",
+            "key": "output",
+            "value": "OK done"
+          }
+        ]
+      }
+    },
+    {
+      "id": "flow-output-that-never-validates-is-never-published",
+      "description": "Output that keeps violating its schema fails the subtask and nothing is published.",
+      "validate_output": true,
+      "registry": {
+        "producer": {
+          "tools": [],
+          "output_schema": {
+            "type": "string",
+            "pattern": "^OK"
+          }
+        }
+      },
+      "tool_specs": [],
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "producer",
+          "depends_on": []
+        }
+      ],
+      "llm": [
+        {
+          "text": "bad"
+        },
+        {
+          "text": "bad"
+        },
+        {
+          "text": "bad"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "failed"
+        },
+        "blackboard": [
+          {
+            "requester": "anyone",
+            "capability": "producer",
+            "key": "output",
+            "value": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "flow-missing-declared-input-skips-subtask",
+      "description": "A subtask that declares an input nobody posted does not run; the gap is recorded as missing_input.",
+      "registry": {
+        "writer": {}
+      },
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "writer",
+          "consumes": [
+            "researcher.output"
+          ]
+        }
+      ],
+      "llm": [],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "skipped"
+        },
+        "gap_kinds": [
+          "missing_input"
+        ]
+      }
+    },
+    {
+      "id": "flow-unreadable-declared-input-counts-as-missing",
+      "description": "An input posted but not visible to the consumer is indistinguishable from an absent one.",
+      "registry": {
+        "researcher": {
+          "output_visible_to": [
+            "writer"
+          ]
+        },
+        "writer": {},
+        "critic": {}
+      },
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "researcher"
+        },
+        {
+          "id": "s2",
+          "required_capability": "critic",
+          "depends_on": [
+            "s1"
+          ],
+          "consumes": [
+            "researcher.output"
+          ]
+        }
+      ],
+      "llm": [
+        {
+          "text": "facts"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "completed",
+          "s2": "skipped"
+        },
+        "gap_kinds": [
+          "missing_input"
+        ]
+      }
+    },
+    {
+      "id": "flow-satisfied-input-runs-and-is-recorded-as-provenance",
+      "description": "When every declared input is readable the subtask runs, and what it posts records the seq of each input it was derived from.",
+      "registry": {
+        "researcher": {},
+        "writer": {}
+      },
+      "subtasks": [
+        {
+          "id": "s1",
+          "required_capability": "researcher"
+        },
+        {
+          "id": "s2",
+          "required_capability": "writer",
+          "depends_on": [
+            "s1"
+          ],
+          "consumes": [
+            "researcher.output"
+          ]
+        }
+      ],
+      "llm": [
+        {
+          "text": "facts"
+        },
+        {
+          "text": "draft"
+        }
+      ],
+      "expect": {
+        "suspended": false,
+        "invocations": [],
+        "subtask_status": {
+          "s1": "completed",
+          "s2": "completed"
+        },
+        "provenance": [
+          {
+            "address": "writer.output",
+            "requester": "writer",
+            "derived_from": [
+              1
+            ]
+          },
+          {
+            "address": "researcher.output",
+            "requester": "researcher",
+            "derived_from": []
+          }
+        ]
+      }
+    }
+  ]
+}

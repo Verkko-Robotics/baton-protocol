@@ -1,0 +1,191 @@
+{
+  "suite": "slicing",
+  "operation": "slice",
+  "spec": "SPEC.md#4.2",
+  "vectors": [
+    {
+      "id": "slice-only-declared-keys",
+      "description": "Only keys named in context_keys cross the boundary; nothing else is visible anywhere in the slice.",
+      "envelope": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "intent": "do it",
+        "context_data": {
+          "job_title": "Engineer",
+          "salary_band": "SECRET-BAND",
+          "required_skills": [
+            "py"
+          ]
+        }
+      },
+      "config": {
+        "capability": "screener",
+        "context_keys": [
+          "job_title",
+          "required_skills"
+        ]
+      },
+      "expect": {
+        "data": {
+          "job_title": "Engineer",
+          "required_skills": [
+            "py"
+          ]
+        },
+        "identity": {
+          "task_id": "t1",
+          "tenant_id": "acme",
+          "principal_id": "u1",
+          "intent": "do it",
+          "capability": "screener"
+        },
+        "never_present": [
+          "SECRET-BAND",
+          "salary_band"
+        ]
+      }
+    },
+    {
+      "id": "slice-no-declared-keys-empty-data",
+      "description": "A capability that declares no keys receives empty data.",
+      "envelope": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "intent": "do it",
+        "context_data": {
+          "job_title": "Engineer",
+          "salary_band": "SECRET-BAND",
+          "required_skills": [
+            "py"
+          ]
+        }
+      },
+      "config": {
+        "capability": "screener",
+        "context_keys": []
+      },
+      "expect": {
+        "data": {},
+        "identity": {
+          "task_id": "t1",
+          "tenant_id": "acme",
+          "principal_id": "u1",
+          "intent": "do it",
+          "capability": "screener"
+        },
+        "never_present": [
+          "SECRET-BAND",
+          "Engineer"
+        ]
+      }
+    },
+    {
+      "id": "slice-missing-declared-key-omitted",
+      "description": "A declared key the envelope does not hold is omitted, not set to null.",
+      "envelope": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "intent": "do it",
+        "context_data": {
+          "job_title": "Engineer",
+          "salary_band": "SECRET-BAND",
+          "required_skills": [
+            "py"
+          ]
+        }
+      },
+      "config": {
+        "capability": "screener",
+        "context_keys": [
+          "job_title",
+          "missing_key"
+        ]
+      },
+      "expect": {
+        "data": {
+          "job_title": "Engineer"
+        },
+        "identity": {
+          "task_id": "t1",
+          "tenant_id": "acme",
+          "principal_id": "u1",
+          "intent": "do it",
+          "capability": "screener"
+        }
+      }
+    },
+    {
+      "id": "slice-identity-always-travels",
+      "description": "Identity and intent are always present, even with no declared keys.",
+      "envelope": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "intent": "do it",
+        "context_data": {
+          "job_title": "Engineer",
+          "salary_band": "SECRET-BAND",
+          "required_skills": [
+            "py"
+          ]
+        }
+      },
+      "config": {
+        "capability": "screener",
+        "context_keys": []
+      },
+      "expect": {
+        "identity": {
+          "task_id": "t1",
+          "tenant_id": "acme",
+          "principal_id": "u1",
+          "intent": "do it",
+          "capability": "screener"
+        }
+      }
+    },
+    {
+      "id": "slice-carries-depth-and-ancestry",
+      "description": "Depth and ancestry travel with the slice for cycle detection and attribution.",
+      "envelope": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "intent": "do it",
+        "context_data": {
+          "job_title": "Engineer",
+          "salary_band": "SECRET-BAND",
+          "required_skills": [
+            "py"
+          ]
+        }
+      },
+      "config": {
+        "capability": "screener",
+        "context_keys": []
+      },
+      "depth": 2,
+      "ancestry": [
+        "root",
+        "mid"
+      ],
+      "expect": {
+        "depth": 2,
+        "ancestry": [
+          "root",
+          "mid"
+        ],
+        "identity": {
+          "task_id": "t1",
+          "tenant_id": "acme",
+          "principal_id": "u1",
+          "intent": "do it",
+          "capability": "screener"
+        }
+      }
+    }
+  ]
+}

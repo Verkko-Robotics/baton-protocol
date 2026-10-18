@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "baton-protocol"
+dynamic = ["version"]
+description = "BATON — Bounded Authority for Traceable Orchestrated Networks of agents: a vendor-neutral standard for scoped, auditable, delegating agent systems."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "The BATON Protocol Authors" }]
+keywords = ["agents", "protocol", "llm", "orchestration", "blackboard", "context"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Typing :: Typed",
+]
+
+# The protocol core is deliberately dependency-free. Anything that talks to a
+# database, an HTTP API or a model provider belongs behind a gateway interface
+# in the host application, never in here.
+dependencies = []
+
+[project.optional-dependencies]
+validation = ["jsonschema>=4.0"]
+dev = ["pytest>=8.0", "jsonschema>=4.0", "mypy>=1.10"]
+
+[project.urls]
+Homepage = "https://github.com/Verkko-Robotics/baton-protocol"
+Specification = "https://github.com/Verkko-Robotics/baton-protocol/blob/main/SPEC.md"
+
+[tool.hatch.version]
+path = "src/baton_protocol/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/baton_protocol"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

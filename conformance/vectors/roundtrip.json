@@ -1,0 +1,186 @@
+{
+  "suite": "roundtrip",
+  "operation": "roundtrip",
+  "spec": "SPEC.md#7",
+  "vectors": [
+    {
+      "id": "rt-envelope-preserves-future-fields",
+      "type": "envelope",
+      "document": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "x_future": {
+          "added_in": "1.4"
+        },
+        "subtasks": [
+          {
+            "required_capability": "a",
+            "id": "s1",
+            "x_prio": 3
+          }
+        ],
+        "gap_flags": [
+          {
+            "kind": "missing_input",
+            "x_note": "n"
+          }
+        ],
+        "blackboard_snapshot": [
+          {
+            "capability": "a",
+            "key": "k",
+            "value": 1,
+            "x_origin": "remote"
+          }
+        ],
+        "budget": {
+          "x_quota": 5
+        },
+        "extensions": {
+          "host": {
+            "k": 1
+          }
+        }
+      },
+      "expect_preserved": [
+        "/x_future",
+        "/subtasks/0/x_prio",
+        "/gap_flags/0/x_note",
+        "/blackboard_snapshot/0/x_origin",
+        "/budget/x_quota",
+        "/extensions/host/k"
+      ]
+    },
+    {
+      "id": "rt-envelope-keeps-newer-minor-version",
+      "type": "envelope",
+      "document": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "protocol_version": "1.7.0"
+      },
+      "expect_preserved": [
+        "/protocol_version"
+      ]
+    },
+    {
+      "id": "rt-subtask",
+      "type": "subtask",
+      "document": {
+        "required_capability": "a",
+        "id": "s1",
+        "x_prio": 3
+      },
+      "expect_preserved": [
+        "/x_prio"
+      ]
+    },
+    {
+      "id": "rt-gap-flag",
+      "type": "gap_flag",
+      "document": {
+        "kind": "missing_input",
+        "x_note": "n"
+      },
+      "expect_preserved": [
+        "/x_note"
+      ]
+    },
+    {
+      "id": "rt-blackboard-entry",
+      "type": "blackboard_entry",
+      "document": {
+        "capability": "a",
+        "key": "k",
+        "value": 1,
+        "x_origin": "remote"
+      },
+      "expect_preserved": [
+        "/x_origin"
+      ]
+    },
+    {
+      "id": "rt-slice",
+      "type": "slice",
+      "document": {
+        "task_id": "t1",
+        "tenant_id": "acme",
+        "principal_id": "u1",
+        "capability": "a",
+        "x_flag": true
+      },
+      "expect_preserved": [
+        "/x_flag"
+      ]
+    },
+    {
+      "id": "rt-pending-approval",
+      "type": "pending_approval",
+      "document": {
+        "tool_name": "send_email",
+        "x_reason": "policy"
+      },
+      "expect_preserved": [
+        "/x_reason"
+      ]
+    },
+    {
+      "id": "rt-budget",
+      "type": "budget",
+      "document": {
+        "x_quota": 5
+      },
+      "expect_preserved": [
+        "/x_quota"
+      ]
+    },
+    {
+      "id": "rt-specialist-run-preserves-future-fields",
+      "type": "run",
+      "document": {
+        "specialist_id": "s",
+        "capability": "c",
+        "subtask_id": "a",
+        "task_id": "t1",
+        "x_trace": "abc"
+      },
+      "expect_preserved": [
+        "/x_trace"
+      ]
+    },
+    {
+      "id": "rt-subtask-consumes",
+      "type": "subtask",
+      "document": {
+        "required_capability": "a",
+        "id": "s1",
+        "consumes": [
+          "b.output",
+          "c.notes"
+        ]
+      },
+      "expect_preserved": [
+        "/consumes"
+      ]
+    },
+    {
+      "id": "rt-blackboard-entry-derived-from",
+      "type": "blackboard_entry",
+      "document": {
+        "capability": "a",
+        "key": "k",
+        "value": 1,
+        "seq": 3,
+        "derived_from": [
+          1,
+          2
+        ]
+      },
+      "expect_preserved": [
+        "/derived_from"
+      ]
+    }
+  ]
+}

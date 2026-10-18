@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Verkko-Robotics/baton-protocol/schemas/1.0/blackboard-entry.schema.json",
+  "title": "BlackboardEntry",
+  "description": "An immutable fact posted by one capability for others to read. `value` may be any JSON value and is omitted when null. `visible_to` of [\"*\"] means every capability; an empty array means none. Additional properties MUST be accepted and preserved (forward compatibility).",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "posted_by": {
+      "type": "string"
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "value": true,
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "visible_to": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "schema_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "derived_from": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "description": "`seq` of each entry this fact was derived from."
+    }
+  },
+  "required": [
+    "capability",
+    "key"
+  ]
+}
